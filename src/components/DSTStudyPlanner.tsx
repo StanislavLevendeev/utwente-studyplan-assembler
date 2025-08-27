@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from "react";
-import { SlotId, Course } from "../types/Course";
+import { SlotId, Course, DataScienceProfile } from "../types/Course";
 import { ALL_COURSES } from "../data/courseData";
 import { saveToLocalStorage, loadFromLocalStorage } from "../utils/storage";
 import { initialAssignments } from "../utils/initialState";
@@ -9,6 +9,7 @@ import {
   unassign, 
   isHighlightedForSlot 
 } from "../utils/plannerUtils";
+import { filterCourses } from "../utils/filterUtils";
 import { Header } from "./Header";
 import { UnassignedCourses } from "./UnassignedCourses";
 import { Legend } from "./Legend";
@@ -39,6 +40,10 @@ export default function UTwenteDSTPlanner() {
   });
   const [notice, setNotice] = useState<string | null>(null);
   const [highlightedSlot, setHighlightedSlot] = useState<SlotId | null>(null);
+  
+  // Filter state
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [selectedProfiles, setSelectedProfiles] = useState<DataScienceProfile[]>([]);
 
   // Save to localStorage whenever assignments change
   useEffect(() => {
@@ -49,6 +54,12 @@ export default function UTwenteDSTPlanner() {
 
   const assignedIds = new Set(Object.keys(assignments));
   const unassigned = courses.filter((c) => !assignedIds.has(c.id));
+
+  // Apply filters to unassigned courses
+  const filteredUnassigned = useMemo(() => 
+    filterCourses(unassigned, searchTerm, selectedProfiles), 
+    [unassigned, searchTerm, selectedProfiles]
+  );
 
   const ecMap = perQuartileEc(assignments, courses);
 
@@ -79,6 +90,19 @@ export default function UTwenteDSTPlanner() {
     }, 30000);
   };
 
+  const handleProfileToggle = (profile: DataScienceProfile) => {
+    setSelectedProfiles(prev => 
+      prev.includes(profile) 
+        ? prev.filter(p => p !== profile)
+        : [...prev, profile]
+    );
+  };
+
+  const handleClearFilters = () => {
+    setSearchTerm("");
+    setSelectedProfiles([]);
+  };
+
   return (
     <div className="w-full bg-gradient-to-b from-white to-slate-50 text-slate-900 mt-6">
       <div className="mx-auto max-w-7xl">
@@ -96,11 +120,16 @@ export default function UTwenteDSTPlanner() {
           <aside className="col-span-12 lg:col-span-4 flex flex-col">
             <div className="flex flex-col h-full space-y-6">
               <UnassignedCourses
-                unassigned={unassigned}
+                unassigned={filteredUnassigned}
                 highlightedSlot={highlightedSlot}
                 assignments={assignments}
                 setAssignments={setAssignments}
                 isHighlightedForSlot={isHighlightedForSlot}
+                searchTerm={searchTerm}
+                onSearchChange={setSearchTerm}
+                selectedProfiles={selectedProfiles}
+                onProfileToggle={handleProfileToggle}
+                onClearFilters={handleClearFilters}
               />
               
               <Legend />
