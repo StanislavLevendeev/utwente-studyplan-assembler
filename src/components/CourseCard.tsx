@@ -32,6 +32,7 @@ export const CourseCard: React.FC<{
 
   return (
     <div
+      data-course-card
       className={`rounded-2xl border px-3 py-2 shadow-sm cursor-grab active:cursor-grabbing select-none transition-all duration-300 ${
         isHighlighted 
           ? `${typeStyle[course.type]} ring-2 ring-blue-400 ring-opacity-75 shadow-lg transform scale-105` 

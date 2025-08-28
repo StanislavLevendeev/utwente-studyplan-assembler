@@ -144,6 +144,7 @@ export default function UTwenteDSTPlanner() {
             handleDrop={handleDrop}
             removeFromSlot={removeFromSlot}
             handleQuartileClick={handleQuartileClick}
+            unassignedCourses={unassigned}
           />
         </div>
 

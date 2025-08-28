@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useState, useRef } from "react";
 import { Course, SlotId, slotLabel } from "../types/Course";
 import { DropZone } from "./DropZone";
 import { CourseCard } from "./CourseCard";
+import { CoursePopover } from "./CoursePopover";
 import { motion, AnimatePresence } from "framer-motion";
+import { getApplicableCoursesForSlot } from "../utils/plannerUtils";
 
 interface PlannerGridProps {
   courses: Course[];
@@ -11,6 +13,7 @@ interface PlannerGridProps {
   handleDrop: (slot: SlotId, courseId: string) => void;
   removeFromSlot: (courseId: string) => void;
   handleQuartileClick: (slot: SlotId) => void;
+  unassignedCourses: Course[];
 }
 
 export const PlannerGrid: React.FC<PlannerGridProps> = ({
@@ -19,8 +22,41 @@ export const PlannerGrid: React.FC<PlannerGridProps> = ({
   ecMap,
   handleDrop,
   removeFromSlot,
-  handleQuartileClick
+  handleQuartileClick,
+  unassignedCourses
 }) => {
+  const [popoverState, setPopoverState] = useState<{
+    isOpen: boolean;
+    slot: SlotId | null;
+  }>({
+    isOpen: false,
+    slot: null
+  });
+
+  const handleZoneClick = (slot: SlotId, event: React.MouseEvent<HTMLDivElement>) => {
+    setPopoverState({
+      isOpen: true,
+      slot
+    });
+  };
+
+  const closePopover = () => {
+    setPopoverState({
+      isOpen: false,
+      slot: null
+    });
+  };
+
+  const handleCourseSelect = (courseId: string) => {
+    if (popoverState.slot) {
+      handleDrop(popoverState.slot, courseId);
+    }
+  };
+
+  const applicableCourses = popoverState.slot 
+    ? getApplicableCoursesForSlot(unassignedCourses, popoverState.slot, assignments)
+    : [];
+
   return (
     <main className="col-span-12 lg:col-span-8">
       {[1, 2].map((year) => (
@@ -31,8 +67,9 @@ export const PlannerGrid: React.FC<PlannerGridProps> = ({
               const slot = `${year}Y-Q${q}` as SlotId;
               const coursesHere = courses.filter((c) => assignments[c.id]?.includes(slot));
               const ec = ecMap[slot];
+              
               return (
-                <div key={slot} className="rounded-2xl bg-white shadow-sm border p-3">
+                <div key={slot} className="rounded-2xl bg-white shadow-sm border p-3 flex flex-col">
                   <div 
                     className="flex items-center justify-between mb-2 cursor-pointer hover:bg-gray-50 rounded-lg p-1 -m-1 transition-colors"
                     onClick={() => handleQuartileClick(slot)}
@@ -43,26 +80,32 @@ export const PlannerGrid: React.FC<PlannerGridProps> = ({
                       {ec}/15 EC
                     </div>
                   </div>
-                  <DropZone slot={slot} onDropCourse={(id) => handleDrop(slot, id)}>
-                    <div className="space-y-2">
-                      <AnimatePresence>
-                        {coursesHere.map((c) => (
-                          <motion.div 
-                            key={`${slot}-${c.id}`} 
-                            layout 
-                            initial={{ opacity: 0, y: 6 }} 
-                            animate={{ opacity: 1, y: 0 }} 
-                            exit={{ opacity: 0, y: -6 }}
-                          >
-                            <CourseCard 
-                              course={c} 
-                              onRemove={() => removeFromSlot(c.id)}
-                            />
-                          </motion.div>
-                        ))}
-                      </AnimatePresence>
-                    </div>
-                  </DropZone>
+                  <div className="flex-1">
+                    <DropZone 
+                      slot={slot} 
+                      onDropCourse={(id) => handleDrop(slot, id)}
+                      onZoneClick={(e) => handleZoneClick(slot, e)}
+                    >
+                      <div className="space-y-2">
+                        <AnimatePresence>
+                          {coursesHere.map((c) => (
+                            <motion.div 
+                              key={`${slot}-${c.id}`} 
+                              layout 
+                              initial={{ opacity: 0, y: 6 }} 
+                              animate={{ opacity: 1, y: 0 }} 
+                              exit={{ opacity: 0, y: -6 }}
+                            >
+                              <CourseCard 
+                                course={c} 
+                                onRemove={() => removeFromSlot(c.id)}
+                              />
+                            </motion.div>
+                          ))}
+                        </AnimatePresence>
+                      </div>
+                    </DropZone>
+                  </div>
                   <div className="mt-2 text-xs text-slate-500">{slotLabel(slot)}</div>
                 </div>
               );
@@ -70,6 +113,14 @@ export const PlannerGrid: React.FC<PlannerGridProps> = ({
           </div>
         </section>
       ))}
+      
+      <CoursePopover
+        isOpen={popoverState.isOpen}
+        onClose={closePopover}
+        slot={popoverState.slot || "1Y-Q1"}
+        applicableCourses={applicableCourses}
+        onCourseSelect={handleCourseSelect}
+      />
     </main>
   );
 };

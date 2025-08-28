@@ -238,3 +238,16 @@ export function exportAsText(assignments: Record<string, SlotId[]>, courses: Cou
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
+
+// Get courses that are applicable for a specific quartile
+export function getApplicableCoursesForSlot(
+  unassignedCourses: Course[], 
+  slot: SlotId, 
+  assignments: Record<string, SlotId[]>
+): Course[] {
+  return unassignedCourses.filter(course => {
+    // Use the existing canPlace function to check if the course can be placed in this slot
+    const result = canPlace(course, slot, assignments, unassignedCourses);
+    return result.ok;
+  });
+}

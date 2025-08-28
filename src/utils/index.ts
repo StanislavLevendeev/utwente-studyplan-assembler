@@ -6,7 +6,8 @@ export {
   unassign,
   isHighlightedForSlot,
   exportStudyProgramme,
-  exportAsText
+  exportAsText,
+  getApplicableCoursesForSlot
 } from './plannerUtils';
 
 export {
