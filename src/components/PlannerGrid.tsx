@@ -67,6 +67,7 @@ export const PlannerGrid: React.FC<PlannerGridProps> = ({
               const slot = `${year}Y-Q${q}` as SlotId;
               const coursesHere = courses.filter((c) => assignments[c.id]?.includes(slot));
               const ec = ecMap[slot];
+              const isFull = ec >= 15;
               
               return (
                 <div key={slot} className="rounded-2xl bg-white shadow-sm border p-3 flex flex-col">
@@ -85,6 +86,7 @@ export const PlannerGrid: React.FC<PlannerGridProps> = ({
                       slot={slot} 
                       onDropCourse={(id) => handleDrop(slot, id)}
                       onZoneClick={(e) => handleZoneClick(slot, e)}
+                      isFull={isFull}
                     >
                       <div className="space-y-2">
                         <AnimatePresence>

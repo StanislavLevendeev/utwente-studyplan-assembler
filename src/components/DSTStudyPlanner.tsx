@@ -15,6 +15,7 @@ import { UnassignedCourses } from "./UnassignedCourses";
 import { Legend } from "./Legend";
 import { PlannerGrid } from "./PlannerGrid";
 import { Footer } from "./Footer";
+import { Snackbar } from "./Snackbar";
 
 /**
  * UTwente Data Science & Technology (MSc CS) – visual study planner
@@ -38,7 +39,13 @@ export default function UTwenteDSTPlanner() {
     const saved = loadFromLocalStorage();
     return saved || initialAssignments();
   });
-  const [notice, setNotice] = useState<string | null>(null);
+  const [snackbar, setSnackbar] = useState<{
+    message: string | null;
+    type: "error" | "success" | "info";
+  }>({
+    message: null,
+    type: "error"
+  });
   const [highlightedSlot, setHighlightedSlot] = useState<SlotId | null>(null);
   
   // Filter state
@@ -63,6 +70,14 @@ export default function UTwenteDSTPlanner() {
 
   const ecMap = perQuartileEc(assignments, courses);
 
+  const showMessage = (message: string, type: "error" | "success" | "info" = "error") => {
+    setSnackbar({ message, type });
+  };
+
+  const closeSnackbar = () => {
+    setSnackbar({ message: null, type: "error" });
+  };
+
   const handleDrop = (slot: SlotId, courseId: string) => {
     const course = courses.find((c) => c.id === courseId);
     if (!course) return;
@@ -74,9 +89,8 @@ export default function UTwenteDSTPlanner() {
     if (attempt.ok) {
       next[course.id] = attempt.slots;
       setAssignments(next);
-      setNotice(null);
     } else {
-      setNotice(attempt.reason);
+      showMessage(attempt.reason, "error");
     }
   };
 
@@ -107,12 +121,11 @@ export default function UTwenteDSTPlanner() {
     <div className="w-full bg-gradient-to-b from-white to-slate-50 text-slate-900 mt-6">
       <div className="mx-auto max-w-7xl">
         <Header
-          notice={notice}
           assignments={assignments}
           courses={courses}
           ecMap={ecMap}
           setAssignments={setAssignments}
-          setNotice={setNotice}
+          onShowMessage={showMessage}
         />
 
         <div className="grid grid-cols-12 gap-6 min-h-[calc(100vh-600px)]">
@@ -150,6 +163,12 @@ export default function UTwenteDSTPlanner() {
 
         <Footer />
       </div>
+
+      <Snackbar
+        message={snackbar.message}
+        type={snackbar.type}
+        onClose={closeSnackbar}
+      />
     </div>
   );
 }

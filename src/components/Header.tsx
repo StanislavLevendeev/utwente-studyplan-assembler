@@ -5,36 +5,32 @@ import { SlotId, Course } from "../types/Course";
 import { initialAssignments } from "../utils/initialState";
 
 interface HeaderProps {
-  notice: string | null;
   assignments: Record<string, SlotId[]>;
   courses: Course[];
   ecMap: Record<SlotId, number>;
   setAssignments: (assignments: Record<string, SlotId[]>) => void;
-  setNotice: (notice: string | null) => void;
+  onShowMessage: (message: string, type?: "error" | "success" | "info") => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
-  notice,
   assignments,
   courses,
   ecMap,
   setAssignments,
-  setNotice
+  onShowMessage
 }) => {
   const resetToDefault = () => {
     if (confirm('Are you sure you want to reset to the default study plan? This will clear your current progress.')) {
       const defaultAssignments = initialAssignments();
       setAssignments(defaultAssignments);
-      setNotice('Study plan reset to default.');
-      setTimeout(() => setNotice(null), 3000);
+      onShowMessage('Study plan reset to default.', 'success');
     }
   };
 
   const clearAllCourses = () => {
     if (confirm('Are you sure you want to clear all course assignments? This will move all courses back to unassigned.')) {
       setAssignments({});
-      setNotice('All courses cleared.');
-      setTimeout(() => setNotice(null), 3000);
+      onShowMessage('All courses cleared.', 'success');
     }
   };
 
@@ -70,11 +66,6 @@ export const Header: React.FC<HeaderProps> = ({
           />
         </div>
       </div>
-      {notice && (
-        <div className="mt-3 rounded-xl bg-red-50 border border-red-200 text-red-900 p-3 text-sm">
-          {notice}
-        </div>
-      )}
     </header>
   );
 };
