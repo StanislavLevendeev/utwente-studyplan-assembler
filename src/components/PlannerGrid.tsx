@@ -33,13 +33,6 @@ export const PlannerGrid: React.FC<PlannerGridProps> = ({
     slot: null
   });
 
-  const handleZoneClick = (slot: SlotId, event: React.MouseEvent<HTMLDivElement>) => {
-    setPopoverState({
-      isOpen: true,
-      slot
-    });
-  };
-
   const closePopover = () => {
     setPopoverState({
       isOpen: false,
@@ -70,22 +63,42 @@ export const PlannerGrid: React.FC<PlannerGridProps> = ({
               const isFull = ec >= 15;
               
               return (
-                <div key={slot} className="rounded-2xl bg-white shadow-sm border p-3 flex flex-col">
+                <div 
+                  key={slot} 
+                  className="rounded-2xl bg-white shadow-sm border p-3 flex flex-col cursor-pointer hover:shadow-md hover:ring-2 hover:ring-blue-200 transition-all group"
+                  onClick={() => {
+                    setPopoverState({
+                      isOpen: true,
+                      slot
+                    });
+                  }}
+                  title="Click to see available courses for this quarter"
+                >
                   <div 
-                    className="flex items-center justify-between mb-2 cursor-pointer hover:bg-gray-50 rounded-lg p-1 -m-1 transition-colors"
-                    onClick={() => handleQuartileClick(slot)}
+                    className="flex items-center justify-between mb-2 hover:bg-gray-50 rounded-lg p-1 -m-1 transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleQuartileClick(slot);
+                    }}
                     title="Click to highlight compatible courses"
                   >
                     <div className="font-semibold">Q{q}</div>
-                    <div className={`text-sm px-2 py-0.5 rounded-full ${ec > 15 ? "bg-red-100 text-red-800" : ec === 15 ? "bg-emerald-100 text-emerald-800" : "bg-slate-100 text-slate-700"}`}>
-                      {ec}/15 EC
+                    <div className="flex items-center gap-2">
+                      <div className={`text-sm px-2 py-0.5 rounded-full ${ec > 15 ? "bg-red-100 text-red-800" : ec === 15 ? "bg-emerald-100 text-emerald-800" : "bg-slate-100 text-slate-700"}`}>
+                        {ec}/15 EC
+                      </div>
+                      {/* Click indicator */}
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                        <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex-1">
+                  <div className="flex-1 relative">
                     <DropZone 
                       slot={slot} 
                       onDropCourse={(id) => handleDrop(slot, id)}
-                      onZoneClick={(e) => handleZoneClick(slot, e)}
                       isFull={isFull}
                     >
                       <div className="space-y-2">
@@ -107,6 +120,15 @@ export const PlannerGrid: React.FC<PlannerGridProps> = ({
                         </AnimatePresence>
                       </div>
                     </DropZone>
+                    
+                    {/* Floating Add Button - appears on hover */}
+                    <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                      <div className="bg-blue-500 text-white rounded-full p-2 shadow-lg">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                      </div>
+                    </div>
                   </div>
                   <div className="mt-2 text-xs text-slate-500">{slotLabel(slot)}</div>
                 </div>
