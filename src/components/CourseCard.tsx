@@ -7,7 +7,7 @@ export const CourseCard: React.FC<{
   course: Course;
   draggable?: boolean;
   onDragStart?: (c: Course) => void;
-  onRemove?: () => void;
+  onRemove?: (event: React.MouseEvent) => void;
   isHighlighted?: boolean;
 }> = ({ course, draggable = true, onDragStart, onRemove, isHighlighted = false }) => {
   const handleCopy = async (e: React.MouseEvent) => {

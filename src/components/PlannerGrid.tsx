@@ -113,7 +113,10 @@ export const PlannerGrid: React.FC<PlannerGridProps> = ({
                             >
                               <CourseCard 
                                 course={c} 
-                                onRemove={() => removeFromSlot(c.id)}
+                                onRemove={(e) => {
+                                  e.stopPropagation();
+                                  removeFromSlot(c.id);
+                                }}
                               />
                             </motion.div>
                           ))}
