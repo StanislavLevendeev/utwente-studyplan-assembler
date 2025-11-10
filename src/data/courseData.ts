@@ -10,7 +10,7 @@ export const REQUIRED: Course[] = [
   { id: cid("Data Science"), code: "202500300", title: "Data Science", ec: 5, duration: 1, type: "required", given: [{ year: 1, q: 2 }, { year: 1, q: 3 }] },
   { id: cid("Information Theory and Statistics"), code: "201700080", title: "Information Theory & Statistics", ec: 5, duration: 1, type: "required", given: [{ year: 1, q: 3 }] },
   { id: cid("Computer Ethics"), code: "191612680", title: "Computer Ethics", ec: 5, duration: 1, type: "required", given: [{ year: 1, q: 2 }] },
-  { id: cid("Research Topics"), title: "Research Topics", ec: 10, duration: 2, type: "required", given: [{ year: 2, q: 1 }, { year: 2, q: 2 }] },
+  { id: cid("Research Topics"), title: "Research Topics", ec: 10, duration: 1, type: "required", given: [{ year: 2, q: 1 }, { year: 2, q: 2 }] },
   { id: cid("Final Project"), code: "192199978", title: "Final Project (MSc Thesis)", ec: 30, duration: 2, type: "required", given: [{ year: 2, q: 3 }, { year: 2, q: 4 }] },
 ];
 
